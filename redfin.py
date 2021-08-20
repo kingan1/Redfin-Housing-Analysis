@@ -5,6 +5,7 @@ import os.path
 import csv
 import json
 
+"""
 firefoxProfile = webdriver.FirefoxProfile();
 direc = os.getcwd()
 firefoxProfile.set_preference("browser.download.panel.shown", False)
@@ -14,8 +15,10 @@ firefoxProfile.set_preference("browser.download.folderList", 2);
 firefoxProfile.set_preference("browser.download.dir", direc)
 
 driver = webdriver.Firefox(firefoxProfile)
+# Open up the Raleigh page
 driver.get('http://www.redfin.com/city/35711/NC/Raleigh')
-driver.find_element_by_class_name("removeIcon").click()
+# Click on the "Remove Outline" button to expand our view
+driver.find_element_by_class_name("RemoveOutlineButton").click()
 time.sleep(5)
 zoomOut = driver.find_element_by_class_name("zoomMinusControlButton")
 zoomOut.click()
@@ -30,29 +33,22 @@ driver.execute_script('arguments[0].setAttribute("href", arguments[1]);', button
 button.click()
 time.sleep(10)
 files = os.listdir()
-for f in files:
-    if f.split('.')[1] == 'csv':
-        os.rename(f, 'file.csv')
-while not os.path.exists(os.getcwd() + '/file.csv'):
-    print('Either file has not been saved or file has been saved incorrectly')
-    time.sleep(2)
-    files = os.listdir()
-    for f in files:
-        if f.split('.')[1] == 'csv':
-            os.rename(f, 'file.csv')
-
+"""
+# get the most recent file, which is the downloaded file
+filename = max([ f for f in os.listdir()],key=os.path.getctime)
+print(filename)
+# move the file into data
+os.rename(filename, f'data/{filename}')
+filename = "data/" + filename
 print('done')
-csvfile = open('file.csv', 'r')
-jsonfile = open('file.json', 'w')
-fieldnames = ('SALE TYPE','SOLD DATE','PROPERTY TYPE','ADDRESS,CITY,STATE OR PROVINCE','ZIP OR POSTAL CODE','PRICE','BEDS','BATHS','LOCATION','SQUARE FEET','LOT SIZE','YEAR BUILT','DAYS ON MARKET','$/SQUARE FEET','HOA/MONTH','STATUS','NEXT OPEN HOUSE START TIME','NEXT OPEN HOUSE END TIME','URL (SEE http://www.redfin.com/buy-a-home/comparative-market-analysis FOR INFO ON PRICING)','SOURCE','MLS#','FAVORITE','INTERESTED','LATITUDE','LONGITUDE')
-diction = []
+csvfile = open(filename, 'r')
+jsonfile = open('data/file.json', 'w')
+#fieldnames = ('SALE TYPE','SOLD DATE','PROPERTY TYPE','ADDRESS,CITY,STATE OR PROVINCE','ZIP OR POSTAL CODE','PRICE','BEDS','BATHS','LOCATION','SQUARE FEET','LOT SIZE','YEAR BUILT','DAYS ON MARKET','$/SQUARE FEET','HOA/MONTH','STATUS','NEXT OPEN HOUSE START TIME','NEXT OPEN HOUSE END TIME','URL (SEE http://www.redfin.com/buy-a-home/comparative-market-analysis FOR INFO ON PRICING)','SOURCE','MLS#','FAVORITE','INTERESTED','LATITUDE','LONGITUDE')
 reader = csv.DictReader( csvfile)
 lst = []
 for row in reader:
     lst.append(row)
-    #json.dump(row, jsonfile)
-    #jsonfile.write('\n')
+    json.dump(row, jsonfile)
+    jsonfile.write('\n')
 json.dump(lst, jsonfile)
 jsonfile.close()
-jsonF = open('file.json', 'r') 
-fi = json.load(jsonF)
