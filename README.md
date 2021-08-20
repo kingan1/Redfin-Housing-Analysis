@@ -1,9 +1,26 @@
-To run the program, you should first run redfin.py
-This produces both a .csv and .json but the .csv is the accurate/correct file
+# Redfin Housing Analysis
 
-From there, you should run image.py if you want images based on the data
-or model.py if you want to see 5 different models of computation and their results
+Project completed for CS 3535, Web Scraping in my undergrad at Appalachian State University.
 
-This project scrapes ~10K homes from redfins website centered around Raleigh and collects data about each home.
-My visuals then explore the overall data, such as where they are located and then explores relationships between price and
-several columns. My model then tries to predict housing prices based on several columns, and outputs its RMSE.
+The goals of this project was to extract large amounts of data from the web using web scraping tools, clean the data, create visuals, and use machine learning techniques.
+
+# How to run
+1. First, to ensure all libraries are installed, run `pip install -r requirements.txt`
+2. To run the program, you should first run `python redfin.py`
+    + This starts a selenium browser which navigates to redfin and downloads a csv file of listings in Raleigh, NC
+    + This will produce csv and json files to be stored in data
+    + The json was created for class requirements, but is not used in later files.
+3. To produce images, run `python image.py`
+    + This produces 5 images, attempting to describe the data and possible patterns.
+4. To build machine learning models, run `python model.py`
+    + this first performs data cleaning, and then builds and compares several machine learning models, including
+        + Linear Regression
+        + Ridge Regression
+        + Extra Trees Regressor
+        + Elastic Net
+        + Gradient Boosting Regressor
+
+# Future work
++ Re-evaluate better ways to visualize
++ Improve model results
++ Explore more pre-processing
