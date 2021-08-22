@@ -1,3 +1,7 @@
 *.pptx
 data/*
-!data/temp.txt
+!data/file.csv
+
+venv
+.idea
+geckodriver.log
