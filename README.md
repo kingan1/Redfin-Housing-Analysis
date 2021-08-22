@@ -7,6 +7,7 @@ The goals of this project was to extract large amounts of data from the web usin
 # How to run
 1. First, to ensure all libraries are installed, run `pip install -r requirements.txt`
 2. To run the program, you should first run `python redfin.py`
+    + note: only run this if you want to generate a fresh .csv file. If not, the program will use the existing file in data/file.csv
     + This starts a selenium browser which navigates to redfin and downloads a csv file of listings in Raleigh, NC
     + This will produce csv and json files to be stored in data
     + The json was created for class requirements, but is not used in later files.

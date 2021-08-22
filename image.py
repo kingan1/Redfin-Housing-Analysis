@@ -75,7 +75,6 @@ def beds():
 
 
 def bedsVsBaths():
-    # TODO: fix this warning message
     df["Corr"] = (df["BEDS"] / df["BATHS"]).round().astype("int") + 1
     plt.bar(x=df.Corr, height=df["PRICE"])
     plt.xlim(0)
@@ -98,7 +97,7 @@ def age():
 
 
 df["YEAR BUILT"] = df["YEAR BUILT"].fillna(1980)
-df["AGE"] = 2019 - df["YEAR BUILT"]
+df["AGE"] = 2021 - df["YEAR BUILT"]
 plt.figure(0)
 age()
 plt.figure(1)
