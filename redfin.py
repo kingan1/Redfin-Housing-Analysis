@@ -1,8 +1,6 @@
 from selenium import webdriver
 import time
 import os.path
-import csv
-import json
 
 # Initializing firefox browser
 # Have to configure how files are saved
@@ -21,11 +19,12 @@ driver = webdriver.Firefox(firefoxProfile)
 
 
 # Open up the Raleigh page
-driver.get("http://www.redfin.com/city/35711/NC/Raleigh")
+driver.get("http://www.redfin.com/city/35711/NC/Raleigh/filter/property-type=house")
+# have to pause since we added this filter
+time.sleep(5)
 # Click on the "Remove Outline" button to expand our view
 driver.find_element_by_class_name("RemoveOutlineButton").click()
-# time.sleep(5)
-# zoom out 2 times to query more homes
+# # zoom out 2 times to query more homes
 zoomOut = driver.find_element_by_class_name("zoomMinusControlButton")
 zoomOut.click()
 time.sleep(2)
@@ -57,15 +56,3 @@ os.rename(filename, f"data/{filename}")
 filename = "data/" + filename
 # also update the file.csv file to be this file
 os.replace(filename, "data/file.csv")
-
-# transforming the data from csv -> json
-csvfile = open("data/file.csv", "r")
-jsonfile = open("data/file.json", "w")
-reader = csv.DictReader(csvfile)
-lst = []
-for row in reader:
-    lst.append(row)
-    json.dump(row, jsonfile)
-    jsonfile.write("\n")
-json.dump(lst, jsonfile)
-jsonfile.close()
