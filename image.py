@@ -1,30 +1,23 @@
-import pandas as pd
-import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import numpy as np
-from sklearn.model_selection import train_test_split
-import matplotlib.ticker as ticker
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 df = pd.read_csv("data/file.csv")
-df.drop(["STATUS"], axis=1, inplace=True)
-df = df.dropna(
-    subset=[
-        "LOCATION",
-        "PRICE",
-        "CITY",
-        "LOT SIZE",
-        "BEDS",
-        "BATHS",
-        "DAYS ON MARKET",
-        "SQUARE FEET",
-    ]
-)
+
+# Data cleaning
+valid_sale_type = ["MLS Listing", "New Construction Home", "New Construction Plan"]
+df = df[df["SALE TYPE"].isin(valid_sale_type)]
+
+# Drop everything without a price
+df = df.dropna(subset=["PRICE"])
+
 df["HOA/MONTH"] = df["HOA/MONTH"].fillna(0)
-mapper = cm.ScalarMappable()
-mapper.set_array(df["PRICE"])
 
 
 def distrColor():
+    plt.figure()
     plt.scatter(
         df.LATITUDE,
         df.LONGITUDE,
@@ -33,35 +26,45 @@ def distrColor():
         cmap=plt.get_cmap("jet"),
         s=6,
     )
-    plt.colorbar()
-    plt.clim(50000, 500000)
+    cbar = plt.colorbar()
+    plt.clim(df.PRICE.quantile(0.25), df.PRICE.quantile(0.75))
+    labels = cbar.ax.get_yticks()
+    cbar.ax.set_yticklabels(["${:,.0f}".format(l) for l in labels])
     plt.title("Distribution of homes, with gradient of price")
     plt.xlabel("Latitude")
     plt.ylabel("Longitude")
+    plt.show()
 
 
 def allPrices():
+    plt.figure()
     df["PRICE"].hist(bins=20)
     plt.xlim(df.PRICE.min(), df.PRICE.max())
     locs, labels = plt.xticks()
     plt.xticks(locs, ["${:,.0f}".format(l) for l in locs])
 
-    plt.title("All prices")
+    plt.title("How is the Price variable distributed?")
     plt.xlabel("Price")
     plt.ylabel("Total number of homes")
+    plt.show()
 
 
-def averagePrice():
-    cities = df.CITY.unique()
-    plt.bar(x=df.CITY, height=df.PRICE)
-    plt.ylim(50000)
-    plt.tight_layout()
-    locs, labels = plt.yticks()
-    plt.yticks(locs, ["${:,.0f}".format(l) for l in locs])
-    plt.title("Average price per city")
-    plt.xlabel("City")
-    plt.ylabel("Price")
-    plt.xticks(rotation=90)
+def pricePerCity():
+    plt.figure()
+    cities = df.groupby("CITY").mean()["PRICE"].sort_values()
+    top_5 = cities[-5:]
+    bot_5 = cities[:5]
+    fig, ax = plt.subplots(1, 2)
+    pal_red = sns.color_palette("Reds_d", len(top_5))
+    pal_green = sns.color_palette("Greens_d", len(top_5))[::-1]
+
+    sns.barplot(top_5.keys(), top_5.values, ax=ax[0], palette=np.array(pal_red))
+    sns.barplot(bot_5.keys(), bot_5.values, ax=ax[1], palette=np.array(pal_green))
+    ax[0].set_yticklabels(["${:,.0f}".format(l) for l in ax[0].get_yticks()])
+    ax[1].set_yticklabels(["${:,.0f}".format(l) for l in ax[1].get_yticks()])
+    ax[0].set_title("Most Expensive cities")
+    ax[1].set_title("Least Expensive cities")
+    plt.show()
 
 
 def beds():
@@ -74,40 +77,28 @@ def beds():
     plt.ylabel("Average price")
 
 
-def bedsVsBaths():
-    df["Corr"] = (df["BEDS"] / df["BATHS"]).round().astype("int") + 1
-    plt.bar(x=df.Corr, height=df["PRICE"])
-    plt.xlim(0)
+def hoa():
+    # making a new binary variable
+    df["HOA"] = df["HOA/MONTH"].apply(lambda x: "REQUIRED" if x != 0 else "NOTREQUIRED")
+    sns.boxplot(x="HOA", y="PRICE", data=df)
+    plt.ylim(0, df.PRICE.max())
     locs, labels = plt.yticks()
     plt.yticks(locs, ["${:,.0f}".format(l) for l in locs])
+    plt.title("Do homes with a HOA have a higher price?")
 
-    plt.title("Percentage of beds/baths correlated to price")
-    plt.xlabel("# of beds / # of baths")
-    plt.ylabel("Price")
+    plt.show()
 
 
 def age():
-    plt.bar(x=df.AGE, height=df.PRICE)
-    plt.xlim(0, 200)
+    plt.figure()
+    plt.bar(x=df["YEAR BUILT"], height=df.PRICE)
+    # plt.xlim(0, 200)
     locs, labels = plt.yticks()
     plt.yticks(locs, ["${:,.0f}".format(l) for l in locs])
     plt.title("Price vs Year Built")
     plt.xlabel("Age")
     plt.ylabel("Price")
+    plt.show()
 
 
-df["YEAR BUILT"] = df["YEAR BUILT"].fillna(1980)
-df["AGE"] = 2021 - df["YEAR BUILT"]
-plt.figure(0)
 age()
-plt.figure(1)
-bedsVsBaths()
-plt.figure(2)
-beds()
-plt.figure(3)
-allPrices()
-plt.figure(4)
-averagePrice()
-plt.figure(5)
-distrColor()
-plt.show()
