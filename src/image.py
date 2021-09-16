@@ -1,22 +1,31 @@
-import matplotlib.cm as cm
+"""
+Creates images
+
+"""
 import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-df = pd.read_csv("data/file.csv")
 
-# Data cleaning
-valid_sale_type = ["MLS Listing", "New Construction Home", "New Construction Plan"]
-df = df[df["SALE TYPE"].isin(valid_sale_type)]
+def run():
+    df = pd.read_csv("data/file.csv")
 
-# Drop everything without a price
-df = df.dropna(subset=["PRICE"])
+    # Data cleaning
+    valid_sale_type = ["MLS Listing", "New Construction Home", "New Construction Plan"]
+    df = df[df["SALE TYPE"].isin(valid_sale_type)]
 
-df["HOA/MONTH"] = df["HOA/MONTH"].fillna(0)
+    # Drop everything without a price
+    df = df.dropna(subset=["PRICE"])
+
+    df["HOA/MONTH"] = df["HOA/MONTH"].fillna(0)
+    return df
 
 
-def distrColor():
+def distrColor(df):
+    """
+    Makes a plot of the distribution of prices
+    """
     plt.figure()
     plt.scatter(
         df.LATITUDE,
@@ -36,7 +45,10 @@ def distrColor():
     plt.show()
 
 
-def allPrices():
+def allPrices(df):
+    """
+    Makes a plot of all prices
+    """
     plt.figure()
     df["PRICE"].hist(bins=20)
     plt.xlim(df.PRICE.min(), df.PRICE.max())
@@ -49,7 +61,10 @@ def allPrices():
     plt.show()
 
 
-def pricePerCity():
+def pricePerCity(df):
+    """
+    Makes a plot of price per city
+    """
     plt.figure()
     cities = df.groupby("CITY").mean()["PRICE"].sort_values()
     top_5 = cities[-5:]
@@ -67,7 +82,10 @@ def pricePerCity():
     plt.show()
 
 
-def beds():
+def beds(df):
+    """
+    Makes a plot of beds vs price
+    """
     plt.bar(x=df.BEDS, height=df.PRICE)
     locs, labels = plt.yticks()
     plt.yticks(locs, ["${:,.0f}".format(l) for l in locs])
@@ -77,7 +95,10 @@ def beds():
     plt.ylabel("Average price")
 
 
-def hoa():
+def hoa(df):
+    """
+    Makes a plot of how HOA/month impacts the price
+    """
     # making a new binary variable
     df["HOA"] = df["HOA/MONTH"].apply(lambda x: "REQUIRED" if x != 0 else "NOTREQUIRED")
     sns.boxplot(x="HOA", y="PRICE", data=df)
@@ -89,7 +110,10 @@ def hoa():
     plt.show()
 
 
-def age():
+def age(df):
+    """
+    Makes a plot of the distribution of age
+    """
     plt.figure()
     plt.bar(x=df["YEAR BUILT"], height=df.PRICE)
     # plt.xlim(0, 200)
@@ -101,4 +125,11 @@ def age():
     plt.show()
 
 
-age()
+if __name__ == "__main__":
+    df = run()
+    hoa(df)
+    age(df)
+    beds(df)
+    distrColor(df)
+    pricePerCity(df)
+    allPrices(df)

@@ -1,7 +1,7 @@
 *.pptx
-data/*
-!data/file.csv
-
+src/data/*
+!src/data/file.csv
+__pycache__
 venv
 .idea
 geckodriver.log
